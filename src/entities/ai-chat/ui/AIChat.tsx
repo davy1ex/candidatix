@@ -6,14 +6,22 @@ import { useSettings } from "@/entities/settings/model/settingsStore";
 import { useResume } from "@/entities/resume/model/resumeStore";
 import { generateAIResponse } from "../service/aiChatService";
 import { useState } from "react";
+import { useResponseStore } from "@/entities/ai-response/model/responseStore";
+import { ResponsesList } from "@/entities/ai-response/ui/ResponsesList";
 import {AutoResizeTextarea} from "@/shared/ui/autoResizeTextarea"
 import { CopyToClipboardButton } from "@/shared/ui/buttonCopyToClipboard";
+import { Textarea } from '@/shared/ui/textarea';
+import { Input } from '@/shared/ui/input';
 
 export const AIChat = () => {
   const { isOpen: isSettingsOpen, ollamaUrl, ollamaModel } = useSettings();
   const { resume } = useResume();
+  const { addResponse } = useResponseStore();
 
   const [prompt, setPrompt] = useState("");
+  const [jobLink, setJobLink] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
@@ -97,8 +105,51 @@ export const AIChat = () => {
                           <CopyToClipboardButton response={response} />
                         </div>
                         
-                        <div className="flex justify-end mt-2">
-                            <CopyToClipboardButton response={response} />
+                        <Input 
+                          type="text" 
+                          placeholder='Link to job'
+                          value={jobLink} 
+                          onChange={(e) => setJobLink(e.target.value)} 
+                        />
+                        <Textarea onChange={(e) => setJobDescription(e.target.value)} value={jobDescription} placeholder='Job description'/>
+
+                        <div className="flex justify-end gap-2 mt-2">
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (prompt && response && resume) {
+                                addResponse({
+                                  id: String(Date.now()),
+                                  jobDescription,
+                                  jobLink,
+                                  response,
+                                  resumeId: resume.id,
+                                  createdAt: new Date().toISOString(),
+                                  updatedAt: new Date().toISOString()
+                                });
+                              }
+                            }}
+                          >
+                            Save Response
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setPrompt('');
+                              setResponse('');
+                              setStatus('idle');
+                            }}
+                          >
+                            Clear
+                          </Button>
+                        </div>
+
+                        <div className="mt-4">
+                          <h3 className="text-lg font-semibold mb-2">Saved Responses</h3>
+                          <ResponsesList />
+                          <CopyToClipboardButton response={response} />
                         </div>
                     </div>
                   )}
