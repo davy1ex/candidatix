@@ -5,6 +5,8 @@ import { Settings } from "@/entities/settings/ui/Settings";
 import { AIChat } from "@/entities/ai-chat/ui/AIChat";
 import { ActivityHeatmap } from "@/shared/ui/ActivityHeatmap";
 import { useResponseStore } from '@/entities/ai-response/model/responseStore';
+import { ResponsesList } from "@/entities/ai-response/ui/ResponsesList";
+import Link from "next/link";
 
 export default function Home() {
   const { responses } = useResponseStore();
@@ -30,10 +32,25 @@ export default function Home() {
         <Settings />
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Activity</h2>
-        <ActivityHeatmap activityData={activityData} />
+      <div className="flex col mb-8">
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Activity</h2>
+          <ActivityHeatmap activityData={activityData} />
+        </div>
+
+        <div className="mb-8">
+        <Link href="/responses">
+          <h2 className="text-2xl font-semibold mb-4 hover:underline cursor-pointer">
+            Responses
+          </h2>
+        </Link>
+            <ResponsesList />
+        </div>
+
       </div>
+
+      
+      
     </div>
   );
 }
