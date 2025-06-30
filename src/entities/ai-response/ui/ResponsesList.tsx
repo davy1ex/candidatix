@@ -1,13 +1,14 @@
+'use client'
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Button } from '@/shared/ui/button';
 import { useResponseStore } from '../model/responseStore';
 import { AIResponse } from '../model/types';
+import { ResponseDetailsModal } from './ResponseDetailsModal';
 
 export const ResponsesList = () => {
   const { responses, isLoading } = useResponseStore();
   const [selectedResponse, setSelectedResponse] = useState<AIResponse | null>(null);
-  const [isCardOpen, setIsCardOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -26,6 +27,7 @@ export const ResponsesList = () => {
   }
 
   return (
+    <>
     <div className="w-full overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
@@ -63,11 +65,11 @@ export const ResponsesList = () => {
                   
                   link
                 </a>
-                <Button className='flex ml-2' size="m" onClick={() => {
-                  setSelectedResponse(response);
-                  setIsCardOpen(prevState => !prevState);
-                  console.log(isCardOpen)
-                }}>
+                <Button 
+                  className='flex ml-2' 
+                  size="m" 
+                  onClick={() => setSelectedResponse(response)}
+                >
                   Open
                 </Button>
               </td>
@@ -76,5 +78,11 @@ export const ResponsesList = () => {
         </tbody>
       </table>
     </div>
+    <ResponseDetailsModal 
+      open={selectedResponse !== null} 
+      onOpenChange={() => setSelectedResponse(null)} 
+      response={selectedResponse}
+    />
+    </>
   );
 };

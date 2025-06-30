@@ -12,6 +12,7 @@ import {AutoResizeTextarea} from "@/shared/ui/autoResizeTextarea"
 import { CopyToClipboardButton } from "@/shared/ui/buttonCopyToClipboard";
 import { Textarea } from '@/shared/ui/textarea';
 import { Input } from '@/shared/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/shared/ui/select';
 
 export const AIChat = () => {
   const { isOpen: isSettingsOpen, ollamaUrl, ollamaModel } = useSettings();
@@ -28,7 +29,10 @@ export const AIChat = () => {
   const [status, setStatus] = useState<'idle' | 'thinking' | 'streaming' | 'done'>('idle');  
   const [error, setError] = useState<string | null>(null);  
 
+  const [LLMProvider, setLLMProvider] = useState()
+
   const handleGenerate = async () => {
+    if (LLMProvider == "gemini") {alert("GEMINI")}
     if (!prompt || !resume) return;
   
     setResponse('');
@@ -62,6 +66,19 @@ export const AIChat = () => {
           <div className="w-1/2 p-4 flex flex-col gap-4">
               <div className="flex-1">
                   <div className="flex-column h-[100%]">
+                  <Select value={LLMProvider} onValueChange={setLLMProvider}>
+                <SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={"ollama"}>
+                      Ollama
+                    </SelectItem>
+
+                    <SelectItem value={"gemini"}>
+                      Gemini
+                    </SelectItem>
+                  </SelectContent>
+                </SelectTrigger>
+              </Select>
                       <Label htmlFor="prompt">Your Question</Label>
                       <AutoResizeTextarea 
                           value={prompt} 
