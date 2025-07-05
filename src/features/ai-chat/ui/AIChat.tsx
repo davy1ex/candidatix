@@ -2,12 +2,12 @@
 import ReactMarkdown from 'react-markdown';
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
-import { useSettings } from "@/entities/settings/model/settingsStore";
+import { useSettings } from "@/features/settings/model/settingsStore";
 import { useResume } from "@/entities/resume/model/resumeStore";
 import { generateAIResponse } from "../service/aiChatService";
 import { useState } from "react";
-import { useResponseStore } from "@/entities/ai-response/model/responseStore";
-import { ResponsesList } from "@/entities/ai-response/ui/ResponsesList";
+import { useResponseStore } from "@/entities/rensponse";
+import { ResponsesList } from "@/features/response/response-list";
 import {AutoResizeTextarea} from "@/shared/ui/autoResizeTextarea"
 import { CopyToClipboardButton } from "@/shared/ui/buttonCopyToClipboard";
 import { Textarea } from '@/shared/ui/textarea';

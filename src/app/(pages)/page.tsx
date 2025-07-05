@@ -2,11 +2,11 @@
 import { useState } from "react";
 
 import { ResumeCard } from "@/entities/resume/ui/ResumeCard";
-import { Settings } from "@/entities/settings/ui/Settings";
+import { Settings } from "@/features/settings/ui/Settings";
 import { ActivityHeatmap } from "@/shared/ui/ActivityHeatmap";
-import { useResponseStore } from '@/entities/ai-response/model/responseStore';
-import { ResponsesList } from "@/entities/ai-response/ui/ResponsesList";
-import { CreateResponseModal } from "@/entities/ai-response/ui/CreateResponseModal";
+import { useResponseStore } from '@/entities/rensponse';
+import { ResponsesList } from "@/features/response/response-list";
+import { CreateResponseModal } from "@/features/response/response-modal";
 import { Button } from "@/shared/ui/button";
 import { CreateResumeModal } from '@/entities/resume/ui/CreateResumeModal';
 import { Toaster } from '@/shared/ui/sonner';

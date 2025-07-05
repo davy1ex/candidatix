@@ -1,5 +1,5 @@
 "use client"
-import { ResponsesList } from "@/entities/ai-response/ui/ResponsesList";
+import { ResponsesList } from "@/features/response/response-list";
 
 export default function ResponsesPage()  {
     return (

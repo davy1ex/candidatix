@@ -1,4 +1,4 @@
-import { useSettings } from '@/entities/settings/model/settingsStore'; // TODO: make requirements by correct way
+import { useSettings } from '@/features/settings/model/settingsStore'; // TODO: make requirements by correct way
 import { useResume } from '@/entities/resume/model/resumeStore'; // TODO: make requirements by correct way
 
 type OnChunkCallback = (chunk: string) => void;

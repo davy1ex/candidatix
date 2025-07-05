@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog"
 import { format } from 'date-fns';
-import { AIResponse } from '../model/types';
+import { AIResponse } from '../../rensponse/model/types';
 
 interface ResponseCardProps {
   response: AIResponse;

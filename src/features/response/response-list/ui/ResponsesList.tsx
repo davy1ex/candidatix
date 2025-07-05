@@ -2,9 +2,8 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Button } from '@/shared/ui/button';
-import { useResponseStore } from '../model/responseStore';
-import { AIResponse } from '../model/types';
-import { ResponseDetailsModal } from './ResponseDetailsModal';
+import { useResponseStore, AIResponse } from '@/entities/rensponse';
+import { ResponseDetailsModal } from '../../response-modal';
 
 export const ResponsesList = () => {
   const { responses, isLoading } = useResponseStore();
