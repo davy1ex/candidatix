@@ -1,4 +1,4 @@
-import { useSettings } from '@/entities/settings/model/settingsStore'; // TODO: make requirements by correct way
+import { useSettings } from '@/features/settings/model/settingsStore'; // TODO: make requirements by correct way
 import { useResume } from '@/entities/resume/model/resumeStore'; // TODO: make requirements by correct way
 
 type OnChunkCallback = (chunk: string) => void;
@@ -75,5 +75,64 @@ export const generateAIResponse = async (prompt: string, onChunk: OnChunkCallbac
         continue;
       }
     }
+  }
+};
+
+
+
+
+
+
+
+export const generateAIResponseGemini = async (prompt: string, onChunk: OnChunkCallback) => {
+  const { geminiKey, geminiUrl } = useSettings.getState();
+  const { resume } = useResume.getState();
+
+  if (!geminiKey || !geminiUrl || !resume) {
+    throw new Error('AI settings or resume not configured');
+  }
+
+  const contents = [
+    {
+      parts: [
+        {
+          text:
+            `Ты — AI, помогающий составлять отклики на вакансии. Используй резюме кандидата, чтобы составить персонализированный текст. Не придумывай информацию, которой нет в резюме.\n` +
+            `Резюме кандидата:\nTitle: ${resume.title}\n\nОпыт работы:\n${resume.workExperience}\n\n` +
+            `Пользователь: ${prompt}`
+        }
+      ]
+    }
+  ];
+
+  const response = await fetch(`/api/gemini/generate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gemini-2.0-flash',
+      contents,
+      stream: false,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch AI response: ${response.statusText}`);
+  }
+
+  const json = await response.json();
+
+  const candidate = json.candidates?.[0];
+  if (!candidate || !candidate.content?.parts) {
+    throw new Error('Invalid response from Gemini API');
+  }
+
+  const fullText = candidate.content.parts.map((p: { text: string }) => p.text).join('');
+
+  const sentences = fullText.split(/(?<=[.!?])\s+/);
+
+  for (const sentence of sentences) {
+    onChunk(sentence + ' ');
   }
 };

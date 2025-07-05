@@ -1,19 +1,24 @@
+"use client"
+
 import { useRouter } from 'next/navigation';
 import { useResume } from '../model/resumeStore';
 import { Button } from '@/shared/ui/button';
+import { EditResumeModal } from './EditResumeModal';
+import { useState } from 'react';
 
 export const ResumeCard = () => {
   const router = useRouter();
   const { resume, isLoading } = useResume();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   return (
     <div className="p-4 bg-white text-black rounded-lg shadow-sm border">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Resume</h3>
         <Button 
-          variant={"secondary"}
+          variant="secondary"
           size="sm"
-          onClick={() => router.push('/resume')}
+          onClick={() => setIsEditModalOpen(true)}
         >
           Edit
         </Button>
@@ -35,6 +40,11 @@ export const ResumeCard = () => {
           </div>
         </div>
       )}
+    <EditResumeModal 
+      open={isEditModalOpen} 
+      onOpenChange={setIsEditModalOpen} 
+      resume={resume}
+    />
     </div>
   );
 }

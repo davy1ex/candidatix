@@ -2,25 +2,37 @@
 import ReactMarkdown from 'react-markdown';
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
-import { useSettings } from "@/entities/settings/model/settingsStore";
+import { useSettings } from "@/features/settings/model/settingsStore";
 import { useResume } from "@/entities/resume/model/resumeStore";
 import { generateAIResponse } from "../service/aiChatService";
 import { useState } from "react";
+import { useResponseStore } from "@/entities/rensponse";
+import { ResponsesList } from "@/features/response/response-list";
 import {AutoResizeTextarea} from "@/shared/ui/autoResizeTextarea"
 import { CopyToClipboardButton } from "@/shared/ui/buttonCopyToClipboard";
+import { Textarea } from '@/shared/ui/textarea';
+import { Input } from '@/shared/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/shared/ui/select';
 
 export const AIChat = () => {
   const { isOpen: isSettingsOpen, ollamaUrl, ollamaModel } = useSettings();
   const { resume } = useResume();
+  const { addResponse } = useResponseStore();
 
   const [prompt, setPrompt] = useState("");
+  const [jobLink, setJobLink] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
   const [status, setStatus] = useState<'idle' | 'thinking' | 'streaming' | 'done'>('idle');  
   const [error, setError] = useState<string | null>(null);  
 
+  const [LLMProvider, setLLMProvider] = useState()
+
   const handleGenerate = async () => {
+    if (LLMProvider == "gemini") {alert("GEMINI")}
     if (!prompt || !resume) return;
   
     setResponse('');
@@ -54,6 +66,19 @@ export const AIChat = () => {
           <div className="w-1/2 p-4 flex flex-col gap-4">
               <div className="flex-1">
                   <div className="flex-column h-[100%]">
+                  <Select value={LLMProvider} onValueChange={setLLMProvider}>
+                <SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={"ollama"}>
+                      Ollama
+                    </SelectItem>
+
+                    <SelectItem value={"gemini"}>
+                      Gemini
+                    </SelectItem>
+                  </SelectContent>
+                </SelectTrigger>
+              </Select>
                       <Label htmlFor="prompt">Your Question</Label>
                       <AutoResizeTextarea 
                           value={prompt} 
@@ -97,8 +122,51 @@ export const AIChat = () => {
                           <CopyToClipboardButton response={response} />
                         </div>
                         
-                        <div className="flex justify-end mt-2">
-                            <CopyToClipboardButton response={response} />
+                        <Input 
+                          type="text" 
+                          placeholder='Link to job'
+                          value={jobLink} 
+                          onChange={(e) => setJobLink(e.target.value)} 
+                        />
+                        <Textarea onChange={(e) => setJobDescription(e.target.value)} value={jobDescription} placeholder='Job description'/>
+
+                        <div className="flex justify-end gap-2 mt-2">
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (prompt && response && resume) {
+                                addResponse({
+                                  id: String(Date.now()),
+                                  jobDescription,
+                                  jobLink,
+                                  response,
+                                  resumeId: resume.id,
+                                  createdAt: new Date().toISOString(),
+                                  updatedAt: new Date().toISOString()
+                                });
+                              }
+                            }}
+                          >
+                            Save Response
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setPrompt('');
+                              setResponse('');
+                              setStatus('idle');
+                            }}
+                          >
+                            Clear
+                          </Button>
+                        </div>
+
+                        <div className="mt-4">
+                          <h3 className="text-lg font-semibold mb-2">Saved Responses</h3>
+                          <ResponsesList />
+                          <CopyToClipboardButton response={response} />
                         </div>
                     </div>
                   )}

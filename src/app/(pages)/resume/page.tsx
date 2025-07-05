@@ -1,6 +1,6 @@
 "use client"
 import { Button } from '@/shared/ui/button';
-import { useResume } from '@/entities/resume/model/resumeStore';
+import { useResume } from '@/entities/resume';
 import { useEffect, useState } from 'react';
 
 export default function ResumePage() {
