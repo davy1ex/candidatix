@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/di
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
 import { Input } from "@/shared/ui/input";
-import { AIResponse } from "../../rensponse/model/types";
+import { AIResponse } from "@/entities/rensponse";
 
 interface ResponseDetailsModalProps {
   open: boolean;

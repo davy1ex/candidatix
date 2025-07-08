@@ -7,7 +7,7 @@ import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 import { Calendar } from "@/shared/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
-import { useResponseStore } from '@/entities/rensponse';
+import { useResponseStore, AIResponse } from '@/entities/rensponse';
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useResume } from '@/entities/resume/model/resumeStore';
