@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Button } from "@/shared/ui/button";
 import { ResponsesList } from "@/features/response/response-list";
-import { CreateResponseModal } from "@/features/response/response-modal";
+import { CreateResponseModal } from "@/features/response/create-response";
 
 export const ResponseSection = () => {
   const [isCreateResponseModalOpen, setIsCreateResponseModalOpen] = useState(false);

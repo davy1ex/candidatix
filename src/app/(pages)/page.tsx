@@ -1,7 +1,7 @@
 'use client';
 import { Toaster } from '@/shared/ui/sonner';
 import { ResumeSection } from "@/widgets/resume-section";
-import { Settings } from "@/features/settings/ui/Settings";
+import { Settings } from "@/features/settings";
 import { ActivityHeatmapSection } from "@/widgets/activityHeatmap-section";
 import { ResponseSection } from "@/widgets/responses-sections/ui/ResponsesSection";
 

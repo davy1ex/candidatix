@@ -1,4 +1,4 @@
-import { Resume } from "@/entities/resume/model/types"
+import { Resume } from "@/entities/resume"
 
 interface ResumeDetailProps {
     resume: Resume | null

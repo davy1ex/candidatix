@@ -2,7 +2,7 @@
 import ReactMarkdown from 'react-markdown';
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
-import { useSettings } from "@/features/settings/model/settingsStore";
+import { useSettings } from "@/features/settings";
 import { useResume } from "@/entities/resume/model/resumeStore";
 import { generateAIResponse } from "../service/aiChatService";
 import { useState } from "react";

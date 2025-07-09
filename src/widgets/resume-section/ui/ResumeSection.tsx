@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CreateResumeModal } from '@/entities/resume/ui/CreateResumeModal';
+import { CreateResumeModal } from '@/features/resume/create-resume';
 import { ResumeCard } from "@/entities/resume/ui/ResumeCard";
 import { Button } from "@/shared/ui/button";
 

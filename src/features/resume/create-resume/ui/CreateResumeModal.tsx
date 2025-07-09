@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/di
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
-import { useResume } from '../model/resumeStore';
+import { useResume } from '../../../../entities/resume/model/resumeStore';
 import { toast } from "sonner";
 
 export const CreateResumeModal = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
