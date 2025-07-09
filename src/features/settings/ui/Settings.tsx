@@ -2,23 +2,17 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/shared/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
-import { Input } from "@/shared/ui/input";
-import { Label } from "@/shared/ui/label";
 import { useSettings } from "../model/settingsStore";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/shared/ui/select";
+import {OllamaSettingsForm} from "./OllamaSettingsForm";
+import {GeminiSettingsForm} from "./GeminiSettingsForm";
+import {testOllamaConnection} from "../api/testConnection"
 
 export const Settings = () => {
-  const { 
-    geminiUrl,
-    setGeminiUrl,
-    geminiKey,
-    setGeminiKey,
+  const {
+    ollamaUrl,
+    ollamaModel,
 
-    ollamaUrl, 
-    setOllamaUrl, 
-    ollamaModel, 
-    setOllamaModel ,
-    
     isOpen, 
     toggleSettings, 
   } = useSettings();
@@ -27,40 +21,9 @@ export const Settings = () => {
   const [LLMProvider, setLLMProvider] = useState("ollama")
   const [isTesting, setIsTesting] = useState(false);
 
-  const testConnection = async () => {
-    if (LLMProvider == "gemini") {
-      return // TODO: make here also checking correctly connection 
-    }
-    
-    setIsTesting(true);
-    try {
-      const response = await fetch('/api/ollama/ollama-test');
-      
-      if (!response.ok) {
-        throw new Error('Failed to connect to Ollama');
-      }
-      
-      const data = await response.json();
-      const availableModels = data.models.map((model) => model.name);
-
-      console.log("DATA", availableModels)
-      console.log("ollamaModel on client:", ollamaModel)
-
-      if (availableModels?.includes(ollamaModel)) {
-        setConnectionStatus('✅ Connection successful! Model available.');
-      } else {
-        setConnectionStatus('⚠️ Connection successful, but model not found.');
-      }
-    } catch (error) {
-      setConnectionStatus('❌ Failed to connect to Ollama: ' + error.message);
-    } finally {
-      setIsTesting(false);
-    }
-  };
-
   useEffect(() => {
     if (isOpen && ollamaUrl) {
-      testConnection();
+      testOllamaConnection({model: ollamaModel, setIsTesting, setConnectionStatus});
     }
   }, [isOpen, ollamaUrl]); // TODO: add check connection also for remote LLM (gemini)
 
@@ -98,59 +61,13 @@ export const Settings = () => {
               
               {LLMProvider == "ollama" && (
                 <>
-                  <div className="grid gap-2">
-
-                    <Label htmlFor="ollama-url">Ollama URL</Label>
-                    <Input
-                      id="ollama-url"
-                      value={ollamaUrl}
-                      onChange={(e) => setOllamaUrl(e.target.value)}
-                      placeholder="http://10.0.75.1:11434"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="ollama-model">Ollama Model</Label>
-                    <Input
-                      id="ollama-model"
-                      value={ollamaModel}
-                      onChange={(e) => setOllamaModel(e.target.value)}
-                      placeholder="llama2"
-                    />
-                  </div>
+                  <OllamaSettingsForm />
                 </>
               )}
 
               {LLMProvider == "gemini" && (
                 <>
-                  <div className="grid gap-2">
-                    <Label htmlFor="ollama-url">Gemini URL</Label>
-                    <Input
-                      id="ollama-url"
-                      value={geminiUrl}
-                      onChange={(e) => setGeminiUrl(e.target.value)}
-                      placeholder="Gemini url"
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="gemini-key">Gemini URL</Label>
-                    <Input
-                      id="gemini-key"
-                      value={geminiKey}
-                      onChange={(e) => setGeminiKey(e.target.value)}
-                      placeholder="Gemini url"
-                    />
-                  </div>
-
-                  {/* <div className="grid gap-2">  // TODO: add selecting Gemini model
-                    <Label htmlFor="ollama-model">Gemini Model</Label>
-                    <Input
-                      id="ollama-model"
-                      value={ollamaModel}
-                      onChange={(e) => setOllamaModel(e.target.value)}
-                      placeholder="llama2"
-                    />
-                  </div> */}
+                  <GeminiSettingsForm />
                 </>
               )}
             </div>
