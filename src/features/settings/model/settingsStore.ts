@@ -15,6 +15,9 @@ interface SettingsState {
   
   isOpen: boolean;
   toggleSettings: () => void;
+
+  proxyUrl: string;
+  setProxyUrl: (url: string) => void;
 }
 
 export const useSettings = create<SettingsState>()(
@@ -32,6 +35,9 @@ export const useSettings = create<SettingsState>()(
       
       isOpen: false,
       toggleSettings: () => set((state) => ({ isOpen: !state.isOpen })),
+
+      proxyUrl: '',
+      setProxyUrl: (url) => set({ proxyUrl: url }),
     }),
     {
       name: 'settings-storage',

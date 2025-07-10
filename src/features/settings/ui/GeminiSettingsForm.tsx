@@ -22,7 +22,7 @@ export const GeminiSettingsForm = () => {
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="gemini-key">Gemini URL</Label>
+                <Label htmlFor="gemini-key">Gemini key</Label>
                 <Input
                     id="gemini-key"
                     value={geminiKey}

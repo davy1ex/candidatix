@@ -1,9 +1,24 @@
-import { useSettings } from '@/features/settings'; // TODO: make requirements by correct way
-import { useResume } from '@/entities/resume/model/resumeStore'; // TODO: make requirements by correct way
+import { useSettings } from '@/features/settings';
+import { useResume } from '@/entities/resume/model/resumeStore';
 
 type OnChunkCallback = (chunk: string) => void;
 
-export const generateAIResponse = async (prompt: string, onChunk: OnChunkCallback) => {
+export const generateAIResponse = async (
+    prompt: string,
+    onChunk: OnChunkCallback,
+    provider: 'ollama' | 'gemini'
+) => {
+  console.log(provider)
+  if (provider === 'ollama') {
+    return generateAIResponseOllama(prompt, onChunk);
+  }
+  if (provider === 'gemini') {
+    return generateAIResponseGemini(prompt, onChunk);
+  }
+  throw new Error('Unknown LLM provider');
+};
+
+export const generateAIResponseOllama = async (prompt: string, onChunk: OnChunkCallback) => {
   const { ollamaUrl, ollamaModel } = useSettings.getState();
   const { resume } = useResume.getState();
 
@@ -13,16 +28,14 @@ export const generateAIResponse = async (prompt: string, onChunk: OnChunkCallbac
 
   const response = await fetch(`/api/ollama/generate`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: ollamaModel,
       messages: [
         {
           role: "system",
           content:
-            "Ты — AI, помогающий составлять отклики на вакансии. Используй резюме кандидата, чтобы составить персонализированный текст. Не придумывай информацию, которой нет в резюме.", // TODO: make here selecting lang by users settings
+              "Ты — AI, помогающий составлять отклики на вакансии. Используй резюме кандидата, чтобы составить персонализированный текст. Не придумывай информацию, которой нет в резюме.",
         },
         {
           role: "assistant",
@@ -40,7 +53,7 @@ export const generateAIResponse = async (prompt: string, onChunk: OnChunkCallbac
   if (!response.ok || !response.body) {
     throw new Error(`Failed to fetch AI response: ${response.statusText}`);
   }
-  
+
   const reader = response.body.getReader();
   const decoder = new TextDecoder('utf-8');
   let buffer = '';
@@ -52,11 +65,11 @@ export const generateAIResponse = async (prompt: string, onChunk: OnChunkCallbac
 
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split('\n');
-    buffer = lines.pop() || ''; 
+    buffer = lines.pop() || '';
 
     for (const line of lines) {
       const trimmed = line.trim();
-      if (!trimmed || !trimmed.startsWith('{')) continue; 
+      if (!trimmed || !trimmed.startsWith('{')) continue;
 
       try {
         const parsed = JSON.parse(trimmed);
@@ -71,18 +84,12 @@ export const generateAIResponse = async (prompt: string, onChunk: OnChunkCallbac
           previousText = fullText;
           onChunk(fullText);
         }
-      } catch (err) {
-        continue;
+      } catch {
+        // ignore parse errors
       }
     }
   }
 };
-
-
-
-
-
-
 
 export const generateAIResponseGemini = async (prompt: string, onChunk: OnChunkCallback) => {
   const { geminiKey, geminiUrl } = useSettings.getState();
@@ -97,23 +104,22 @@ export const generateAIResponseGemini = async (prompt: string, onChunk: OnChunkC
       parts: [
         {
           text:
-            `Ты — AI, помогающий составлять отклики на вакансии. Используй резюме кандидата, чтобы составить персонализированный текст. Не придумывай информацию, которой нет в резюме.\n` +
-            `Резюме кандидата:\nTitle: ${resume.title}\n\nОпыт работы:\n${resume.workExperience}\n\n` +
-            `Пользователь: ${prompt}`
-        }
-      ]
-    }
+              `Ты — AI, помогающий составлять отклики на вакансии. Используй резюме кандидата, чтобы составить персонализированный текст. Не придумывай информацию, которой нет в резюме.\n` +
+              `Резюме кандидата:\nTitle: ${resume.title}\n\nОпыт работы:\n${resume.workExperience}\n\n` +
+              `Пользователь: ${prompt}`,
+        },
+      ],
+    },
   ];
 
   const response = await fetch(`/api/gemini/generate`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'gemini-2.0-flash',
-      contents,
-      stream: false,
+      prompt: `Ты — AI, помогающий составлять отклики на вакансии. Используй резюме кандидата, чтобы составить персонализированный текст. Не придумывай информацию, которой нет в резюме.\n` +
+          `Резюме кандидата:\nTitle: ${resume.title}\n\nОпыт работы:\n${resume.workExperience}\n\n` +
+          `Пользователь: ${prompt}`
     }),
   });
 
@@ -122,14 +128,13 @@ export const generateAIResponseGemini = async (prompt: string, onChunk: OnChunkC
   }
 
   const json = await response.json();
-
   const candidate = json.candidates?.[0];
+
   if (!candidate || !candidate.content?.parts) {
     throw new Error('Invalid response from Gemini API');
   }
 
   const fullText = candidate.content.parts.map((p: { text: string }) => p.text).join('');
-
   const sentences = fullText.split(/(?<=[.!?])\s+/);
 
   for (const sentence of sentences) {

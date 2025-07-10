@@ -12,7 +12,7 @@ import {AutoResizeTextarea} from "@/shared/ui/autoResizeTextarea"
 import { CopyToClipboardButton } from "@/shared/ui/buttonCopyToClipboard";
 import { Textarea } from '@/shared/ui/textarea';
 import { Input } from '@/shared/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/shared/ui/select';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/shared/ui/select';
 
 export const AIChat = () => {
   const { isOpen: isSettingsOpen, ollamaUrl, ollamaModel } = useSettings();
@@ -29,22 +29,27 @@ export const AIChat = () => {
   const [status, setStatus] = useState<'idle' | 'thinking' | 'streaming' | 'done'>('idle');  
   const [error, setError] = useState<string | null>(null);  
 
-  const [LLMProvider, setLLMProvider] = useState()
+  const [LLMProvider, setLLMProvider] = useState<'ollama' | 'gemini'>('ollama')
 
   const handleGenerate = async () => {
-    if (LLMProvider == "gemini") {alert("GEMINI")}
+    console.log(LLMProvider)
     if (!prompt || !resume) return;
   
     setResponse('');
     setError(null);
     setIsLoading(true);
     setStatus('thinking');
+
+      await generateAIResponse(prompt, (chunk) => {
+          setStatus('streaming');
+          setResponse(prev => prev + chunk);
+      }, LLMProvider);
   
     try {
       await generateAIResponse(prompt, (chunk) => {
         setStatus('streaming');
         setResponse(prev => prev + chunk);
-      });
+      }, LLMProvider);
   
       setStatus('done');
     } catch (err: any) {
@@ -68,6 +73,7 @@ export const AIChat = () => {
                   <div className="flex-column h-[100%]">
                   <Select value={LLMProvider} onValueChange={setLLMProvider}>
                 <SelectTrigger>
+                    <SelectValue placeholder="Select a LLM" />
                   <SelectContent>
                     <SelectItem value={"ollama"}>
                       Ollama
