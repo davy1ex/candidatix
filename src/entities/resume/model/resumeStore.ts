@@ -4,11 +4,12 @@ import { createJSONStorage } from 'zustand/middleware';
 import type { Resume } from './types';
 
 interface ResumeState {
-  resume: Resume | null;
+  resumes: Resume[] | null;
   isLoading: boolean;
-  setResume: (resume: Resume) => void;
-  updateTitle: (title: string) => void;
-  updateWorkExperience: (workExperience: string) => void;
+  addResume: (resume: Resume) => void;
+  setResumes: (resume: Resume) => void;
+  // updateTitle: (title: string) => void; // TODO: refactor this
+  // updateWorkExperience: (workExperience: string) => void;
   undoChanges: () => void;
   history: Resume[];
   addHistory: (state: Resume) => void;
@@ -17,48 +18,53 @@ interface ResumeState {
 const useResume = create<ResumeState>()(
   persist(
     (set, get) => ({
-      resume: null,
+      resumes: [],
       isLoading: false,
+      addResume: (newResume: Resume) => {
+        set({resumes: [...get().resumes, newResume]})
+      },
       setResume: (resume) => set({ resume }),
       history: [] as Resume[],
-      updateTitle: (title) => {
-        const current = get().resume;
-        if (!current) {
-          set({ resume: { 
-            title,
-            workExperience: '',
-            id: crypto.randomUUID(),
-            skillsTag: [],
-            experienceYears: 0,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          } });
-        } else {
-          set({ resume: { ...current, title } });
-        }
-        set((state) => ({
-          history: [...state.history, state.resume!]
-        }));
-      },
-      updateWorkExperience: (workExperience) => {
-        const current = get().resume;
-        if (!current) {
-          set({ resume: { 
-            title: '',
-            workExperience,
-            id: crypto.randomUUID(),
-            skillsTag: [],
-            experienceYears: 0,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          } });
-        } else {
-          set({ resume: { ...current, workExperience } });
-        }
-        set((state) => ({
-          history: [...state.history, state.resume!]
-        }));
-      },
+      // updateTitle: (id, title) => {
+      //   const current = get().resumes.filter(resume => resume.id == id);
+      //
+      //   if (!current) {
+      //     set({ resume: {
+      //       title,
+      //       workExperience: '',
+      //       id: crypto.randomUUID(),
+      //       skillsTag: [],
+      //       experienceYears: 0,
+      //       createdAt: new Date().toISOString(),
+      //       updatedAt: new Date().toISOString()
+      //     } });
+      //   } else {
+      //     set({ resumes: [...get().resumes, { ...current, title }] });
+      //   }
+      //
+      //   set((state) => ({
+      //     history: [...state.history, state.resumes!]
+      //   }));
+      // },
+      // updateWorkExperience: (id, workExperience) => {
+      //   const current = get().resume;
+      //   if (!current) {
+      //     set({ resume: {
+      //       title: '',
+      //       workExperience,
+      //       id: crypto.randomUUID(),
+      //       skillsTag: [],
+      //       experienceYears: 0,
+      //       createdAt: new Date().toISOString(),
+      //       updatedAt: new Date().toISOString()
+      //     } });
+      //   } else {
+      //     set({ resume: { ...current, workExperience } });
+      //   }
+      //   set((state) => ({
+      //     history: [...state.history, state.resume!]
+      //   }));
+      // },
       undoChanges: () => {
         const state = get();
         const history = state.history;

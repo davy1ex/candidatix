@@ -1,3 +1,4 @@
+import axios from "axios"
 import { NextRequest, NextResponse } from 'next/server';
 // import HttpsProxyAgent from 'https-proxy-agent'; // TODO: add http proxy
 
@@ -7,7 +8,7 @@ export async function POST(req: NextRequest) {
         const { prompt, model = 'gemini-2.0-flash'} = body;
 
         const apiKey = process.env.GEMINI_API_KEY;
-        const geminiUrlBase = process.env.GEMINI_URL || 'https://generativelanguage.googleapis.com/v1beta/models';
+        const geminiUrlBase = process.env.GEMINI_URL || 'https://generativelanguage.googleapis.com/v1beta/models'; //  TODO: add select models
         // const proxyUrl = process.env.PROXY_URL;
 
         if (!apiKey) {
@@ -28,26 +29,61 @@ export async function POST(req: NextRequest) {
             },
         ];
 
-        const url = `${geminiUrlBase}/${model}:generateContent?key=${apiKey}`;
+        // const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        //
+        // const fetchOptions: RequestInit = {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'X-goog-api-key': apiKey
+        //     },
+        //     body: JSON.stringify({
+        //         contents: [
+        //             {
+        //                 parts: [
+        //                     {
+        //                         text: prompt,
+        //                     },
+        //                 ],
+        //             },
+        //         ],
+        //     }),
+        // };
+        //
+        // // if (proxyUrl) {
+        // //     fetchOptions.agent = new HttpsProxyAgent(proxyUrl);
+        // // }
+        //
+        // const fetchResponse = await fetch(url, fetchOptions);
 
-        const fetchOptions: RequestInit = {
+        const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+        const fetchResponse = await axios('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ contents }),
-        };
+            data: {
+                model: 'qwen/qwen3-235b-a22b:free',
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    },
+                ],
+            },
+        });
 
-        // if (proxyUrl) {
-        //     fetchOptions.agent = new HttpsProxyAgent(proxyUrl);
-        // }
+        console.log(fetchResponse)
+        console.log('_________________')
+        console.log(fetchResponse.data)
+        console.log(fetchResponse.data.choices[0].message)
 
-        const fetchResponse = await fetch(url, fetchOptions);
 
-        if (!fetchResponse.ok) {
-            const errorText = await fetchResponse.text();
+        if (!fetchResponse.status == 200) {
+            const errorText = fetchResponse.statusText;
             console.error('Gemini API error:', errorText);
-            return NextResponse.json({ error: errorText }, { status: fetchResponse.status });
+            return NextResponse.json({ error: errorText });
         }
 
         // if (stream && fetchResponse.body) {
@@ -59,8 +95,8 @@ export async function POST(req: NextRequest) {
         //     });
         // } // TODO: Refactor stream logic for gemini
 
-        const result = await fetchResponse.json();
-        return NextResponse.json(result);
+        const result = await fetchResponse.data;
+        return NextResponse.json(result.choices[0].message.content);
     } catch (error: any) {
         console.error('API /gemini/generate error:', error);
         return NextResponse.json(

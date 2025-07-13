@@ -16,7 +16,8 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/s
 
 export const AIChat = () => {
   const { isOpen: isSettingsOpen, ollamaUrl, ollamaModel } = useSettings();
-  const { resume } = useResume();
+  const { resumes } = useResume();
+  const resume = resumes[0] // TODO: refactor here to select resume from client
   const { addResponse } = useResponseStore();
 
   const [prompt, setPrompt] = useState("");
@@ -39,14 +40,9 @@ export const AIChat = () => {
     setError(null);
     setIsLoading(true);
     setStatus('thinking');
-
-      await generateAIResponse(prompt, (chunk) => {
-          setStatus('streaming');
-          setResponse(prev => prev + chunk);
-      }, LLMProvider);
   
-    try {
-      await generateAIResponse(prompt, (chunk) => {
+    try { // TODO: add here checking existing credits of ai provider and if it not exist - send toast about error
+      await generateAIResponse(prompt, resume, (chunk) => {
         setStatus('streaming');
         setResponse(prev => prev + chunk);
       }, LLMProvider);

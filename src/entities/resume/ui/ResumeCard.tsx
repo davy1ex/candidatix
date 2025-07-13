@@ -1,15 +1,15 @@
 "use client"
 
 import { useRouter } from 'next/navigation';
-import { useResume } from '../model/resumeStore';
+import { Resume } from '@/entities/resume';
 import { Button } from '@/shared/ui/button';
 import { EditResumeModal } from './EditResumeModal';
 import { useState } from 'react';
 
-export const ResumeCard = () => {
+export const ResumeCard = ({resume}: {resume: Resume}) => {
   const router = useRouter();
-  const { resume, isLoading } = useResume();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const isLoading = false // TODO: add here loading skeleton
 
   return (
     <div className="p-4 bg-white text-black rounded-lg shadow-sm border">

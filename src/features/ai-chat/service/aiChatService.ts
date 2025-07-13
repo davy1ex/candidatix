@@ -1,10 +1,12 @@
 import { useSettings } from '@/features/settings';
 import { useResume } from '@/entities/resume/model/resumeStore';
+import {Resume} from "@/entities/resume";
 
 type OnChunkCallback = (chunk: string) => void;
 
 export const generateAIResponse = async (
     prompt: string,
+    resume: Resume,
     onChunk: OnChunkCallback,
     provider: 'ollama' | 'gemini'
 ) => {
@@ -13,14 +15,13 @@ export const generateAIResponse = async (
     return generateAIResponseOllama(prompt, onChunk);
   }
   if (provider === 'gemini') {
-    return generateAIResponseGemini(prompt, onChunk);
+    return generateAIResponseGemini(prompt, resume, onChunk);
   }
   throw new Error('Unknown LLM provider');
 };
 
-export const generateAIResponseOllama = async (prompt: string, onChunk: OnChunkCallback) => {
-  const { ollamaUrl, ollamaModel } = useSettings.getState();
-  const { resume } = useResume.getState();
+export const generateAIResponseOllama = async (prompt: string, resume, onChunk: OnChunkCallback) => {
+  const { ollamaUrl, ollamaModel } = useSettings();
 
   if (!ollamaUrl || !ollamaModel || !resume) {
     throw new Error('AI settings or resume not configured');
@@ -91,9 +92,8 @@ export const generateAIResponseOllama = async (prompt: string, onChunk: OnChunkC
   }
 };
 
-export const generateAIResponseGemini = async (prompt: string, onChunk: OnChunkCallback) => {
+export const generateAIResponseGemini = async (prompt: string, resume, onChunk: OnChunkCallback) => {
   const { geminiKey, geminiUrl } = useSettings.getState();
-  const { resume } = useResume.getState();
 
   if (!geminiKey || !geminiUrl || !resume) {
     throw new Error('AI settings or resume not configured');
@@ -126,18 +126,21 @@ export const generateAIResponseGemini = async (prompt: string, onChunk: OnChunkC
   if (!response.ok) {
     throw new Error(`Failed to fetch AI response: ${response.statusText}`);
   }
+  const text = await response.text()
+  console.log("FROM AI", text);
+  // const json = await response.json();
+  // const candidate = json.candidates?.[0];
+  //
+  // if (!candidate || !candidate.content?.parts) {
+  //   throw new Error('Invalid response from Gemini API');
+  // }
+  //
+  // const fullText = candidate.content.parts.map((p: { text: string }) => p.text).join('');
+  // const sentences = fullText.split(/(?<=[.!?])\s+/);
+  //
+  // for (const sentence of sentences) {
+  //   onChunk(sentence + ' ');
+  // }
 
-  const json = await response.json();
-  const candidate = json.candidates?.[0];
-
-  if (!candidate || !candidate.content?.parts) {
-    throw new Error('Invalid response from Gemini API');
-  }
-
-  const fullText = candidate.content.parts.map((p: { text: string }) => p.text).join('');
-  const sentences = fullText.split(/(?<=[.!?])\s+/);
-
-  for (const sentence of sentences) {
-    onChunk(sentence + ' ');
-  }
+  onChunk(text)
 };

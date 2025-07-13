@@ -8,26 +8,15 @@ import { Textarea } from "@/shared/ui/textarea";
 import { useResume } from '@/entities/resume/model/resumeStore';
 import { toast } from "sonner";
 
-export const CreateResumeModal = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
+export const EditResumeModal = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
   const [title, setTitle] = useState('');
   const [skills, setSkills] = useState('');
   const [workExperience, setWorkExperience] = useState('');
   const [experienceYears, setExperienceYears] = useState('');
-  const { addResume } = useResume();
+  const { createResume } = useResume();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newResume = {
-      title,
-      skillsTag: skills.split(',').map(skill => skill.trim()),
-      workExperience,
-      experienceYears: parseInt(experienceYears),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    await addResume(newResume);
-
-    console.log(newResume);
     try {
       const newResume = {
         title,
@@ -38,7 +27,7 @@ export const CreateResumeModal = ({ open, onOpenChange }: { open: boolean; onOpe
         updatedAt: new Date().toISOString()
       };
       console.log("Create Resume", newResume);
-      await addResume(newResume);
+      await createResume(newResume);
       toast.success("Resume created successfully");
       onOpenChange(false);
     } catch (error) {
