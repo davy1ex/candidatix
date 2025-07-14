@@ -2,12 +2,14 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createJSONStorage } from 'zustand/middleware';
 import type { Resume } from './types';
+import {newDate} from "date-fns-jalali";
 
 interface ResumeState {
   resumes: Resume[] | null;
   isLoading: boolean;
   addResume: (resume: Resume) => void;
   setResumes: (resume: Resume) => void;
+  deleteResume: (resumeId: string) => void;
   // updateTitle: (title: string) => void; // TODO: refactor this
   // updateWorkExperience: (workExperience: string) => void;
   undoChanges: () => void;
@@ -20,10 +22,19 @@ const useResume = create<ResumeState>()(
     (set, get) => ({
       resumes: [],
       isLoading: false,
-      addResume: (newResume: Resume) => {
-        set({resumes: [...get().resumes, newResume]})
+      addResume: (resumeData: Resume) => {
+          const newResume: Resume = {
+              id: crypto.randomUUID(),
+              ...resumeData,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+          }
+          set({resumes: [...get().resumes, newResume]})
       },
       setResume: (resume) => set({ resume }),
+      deleteResume: (resumeId: string) => {
+        set({resumes: get().resumes.filter(resume => resume.id !== resumeId)});
+      },
       history: [] as Resume[],
       // updateTitle: (id, title) => {
       //   const current = get().resumes.filter(resume => resume.id == id);

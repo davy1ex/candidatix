@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
+import {useCreateNewResume} from "../api/useCreateNewResume";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
-import { useResume } from '@/entities/resume/model/resumeStore';
 import { toast } from "sonner";
 
 export const CreateResumeModal = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
@@ -13,32 +13,20 @@ export const CreateResumeModal = ({ open, onOpenChange }: { open: boolean; onOpe
   const [skills, setSkills] = useState('');
   const [workExperience, setWorkExperience] = useState('');
   const [experienceYears, setExperienceYears] = useState('');
-  const { addResume } = useResume();
+
+  const createResume = useCreateNewResume()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newResume = {
-      title,
-      skillsTag: skills.split(',').map(skill => skill.trim()),
-      workExperience,
-      experienceYears: parseInt(experienceYears),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    await addResume(newResume);
 
-    console.log(newResume);
     try {
-      const newResume = {
+      await createResume({
         title,
-        skillsTag: skills.split(',').map(skill => skill.trim()),
+        skills,
         workExperience,
-        experienceYears: parseInt(experienceYears),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      console.log("Create Resume", newResume);
-      await addResume(newResume);
+        experienceYears: parseInt(experienceYears)
+      })
+
       toast.success("Resume created successfully");
       onOpenChange(false);
     } catch (error) {

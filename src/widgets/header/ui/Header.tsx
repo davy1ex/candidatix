@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/shared/lib/css'; 
+import {Settings} from "@/features/settings";
+import { cn } from '@/shared/lib/css';
 import { buttonVariants } from '@/shared/ui/button';
 
 const navItems = [
@@ -35,6 +36,8 @@ export function Header() {
               {item.label}
             </Link>
           ))}
+          <Settings />
+
         </nav>
       </div>
     </header>

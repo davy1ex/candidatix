@@ -1,0 +1,1 @@
+export {useDeleteResume} from './api/useDeleteResume'

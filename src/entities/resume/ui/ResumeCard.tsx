@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Resume } from '@/entities/resume';
 import { Button } from '@/shared/ui/button';
-import { EditResumeModal } from './EditResumeModal';
+import { EditResumeModal } from '@/features/resume/edit-resume';
 import { useState } from 'react';
 
 export const ResumeCard = ({resume}: {resume: Resume}) => {
