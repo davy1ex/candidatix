@@ -128,19 +128,5 @@ export const generateAIResponseGemini = async (prompt: string, resume, onChunk: 
   }
   const text = await response.text()
   console.log("FROM AI", text);
-  // const json = await response.json();
-  // const candidate = json.candidates?.[0];
-  //
-  // if (!candidate || !candidate.content?.parts) {
-  //   throw new Error('Invalid response from Gemini API');
-  // }
-  //
-  // const fullText = candidate.content.parts.map((p: { text: string }) => p.text).join('');
-  // const sentences = fullText.split(/(?<=[.!?])\s+/);
-  //
-  // for (const sentence of sentences) {
-  //   onChunk(sentence + ' ');
-  // }
-
   onChunk(text)
 };

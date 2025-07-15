@@ -3,6 +3,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/s
 import {OllamaSettingsForm} from "@/features/settings/ui/OllamaSettingsForm";
 import {GeminiSettingsForm} from "@/features/settings/ui/GeminiSettingsForm";
 import {Button} from "@/shared/ui/button";
+import {Textarea} from "@/shared/ui/textarea";
 import {useSettings} from "../../model/settingsStore";
 import {testOllamaConnection} from "@/features/settings/api/testConnection";
 
@@ -16,6 +17,7 @@ export const SettingsLLMProviderTab = () => {
     const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
     const [LLMProvider, setLLMProvider] = useState("ollama")
     const [isTesting, setIsTesting] = useState(false);
+    const [systemPrompt, setSystemPrompt] = useState('')
 
     useEffect(() => {
         if (isOpen && LLMProvider == 'ollama') {
@@ -37,6 +39,10 @@ export const SettingsLLMProviderTab = () => {
         }
     }
 
+    const saveSettings = () => {
+
+    }
+
     return (
         <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -47,7 +53,6 @@ export const SettingsLLMProviderTab = () => {
                             <SelectItem value={"ollama"}>
                                 Ollama
                             </SelectItem>
-
                             <SelectItem value={"gemini"}>
                                 Gemini
                             </SelectItem>
@@ -66,6 +71,11 @@ export const SettingsLLMProviderTab = () => {
                         <GeminiSettingsForm />
                     </>
                 )}
+                <h2>System Prompt</h2>
+                <Textarea
+                    onChange={(e) => setSystemPrompt(e.target.value)}
+                    value={systemPrompt}
+                />
             </div>
 
             <div className="flex justify-end">
@@ -75,6 +85,13 @@ export const SettingsLLMProviderTab = () => {
                     disabled={isTesting}
                 >
                     {isTesting ? 'Testing...' : 'Test Connection'}
+                </Button>
+
+                <Button
+                    variant="outline"
+                    onClick={saveSetting}
+                    disabled={isTesting}
+                >Save
                 </Button>
             </div>
             {connectionStatus && (

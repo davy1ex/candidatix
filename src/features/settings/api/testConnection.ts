@@ -11,6 +11,7 @@ export const testOllamaConnection = async ({
 }: TestConnection) => {
     setIsTesting(true);
     try {
+        setConnectionStatus('')
         const response = await fetch('/api/ollama/ollama-test');
 
         if (!response.ok) {

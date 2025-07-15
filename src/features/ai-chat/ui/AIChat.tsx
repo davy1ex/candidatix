@@ -4,7 +4,7 @@ import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
 import { useSettings } from "@/features/settings";
 import { useResume } from "@/entities/resume/model/resumeStore";
-import { generateAIResponse } from "../service/aiChatService";
+import { generateAIResponse } from "@/features/ai-chat/api/generateAIResponse";
 import { useState } from "react";
 import { useResponseStore } from "@/entities/rensponse";
 import { ResponsesList } from "@/features/response/response-list";
