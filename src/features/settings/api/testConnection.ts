@@ -1,18 +1,21 @@
 interface TestConnection {
     model: string;
+    ollamaUrl: string;
     setIsTesting: (isTesting: boolean) => void;
     setConnectionStatus: (connectionStatus: string) => void;
 }
 
 export const testOllamaConnection = async ({
     model,
+    ollamaUrl,
     setIsTesting,
     setConnectionStatus,
 }: TestConnection) => {
     setIsTesting(true);
+    
     try {
         setConnectionStatus('')
-        const response = await fetch('/api/ollama/ollama-test');
+        const response = await fetch(`/api/ollama/ollama-test?ollamaUrl=${ollamaUrl}`);
 
         if (!response.ok) {
             throw new Error('Failed to connect to Ollama');

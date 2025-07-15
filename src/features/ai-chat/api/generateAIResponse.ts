@@ -12,7 +12,7 @@ export const generateAIResponse = async (
 ) => {
   console.log(provider)
   if (provider === 'ollama') {
-    return generateAIResponseOllama(prompt, onChunk);
+    return generateAIResponseOllama(prompt, resume, onChunk);
   }
   if (provider === 'gemini') {
     return generateAIResponseGemini(prompt, resume, onChunk);
@@ -20,14 +20,14 @@ export const generateAIResponse = async (
   throw new Error('Unknown LLM provider');
 };
 
-export const generateAIResponseOllama = async (prompt: string, resume, onChunk: OnChunkCallback) => {
-  const { ollamaUrl, ollamaModel } = useSettings();
+export const generateAIResponseOllama = async (prompt: string, resume: string, onChunk: OnChunkCallback) => {
+  const { ollamaUrl, ollamaModel } = useSettings.getState();
 
   if (!ollamaUrl || !ollamaModel || !resume) {
     throw new Error('AI settings or resume not configured');
   }
 
-  const response = await fetch(`/api/ollama/generate`, {
+  const response = await fetch(`/api/ollama/generate?ollamaUrl=${ollamaUrl}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -36,7 +36,7 @@ export const generateAIResponseOllama = async (prompt: string, resume, onChunk: 
         {
           role: "system",
           content:
-              "Ты — AI, помогающий составлять отклики на вакансии. Используй резюме кандидата, чтобы составить персонализированный текст. Не придумывай информацию, которой нет в резюме.",
+              "",
         },
         {
           role: "assistant",
@@ -92,7 +92,7 @@ export const generateAIResponseOllama = async (prompt: string, resume, onChunk: 
   }
 };
 
-export const generateAIResponseGemini = async (prompt: string, resume, onChunk: OnChunkCallback) => {
+export const generateAIResponseGemini = async (prompt: string, resume: string, onChunk: OnChunkCallback) => {
   const { geminiKey, geminiUrl } = useSettings.getState();
 
   if (!geminiKey || !geminiUrl || !resume) {

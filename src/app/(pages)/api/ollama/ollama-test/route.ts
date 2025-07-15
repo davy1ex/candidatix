@@ -1,5 +1,8 @@
-export async function GET() {
-    const res = await fetch('http://172.22.208.1:11434/api/tags', { // TODO: make all urls as vars from store
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const ollamaUrl = searchParams.get("ollamaUrl");
+
+    const res = await fetch(`${ollamaUrl}/api/tags`, { // TODO: make all urls as vars from store
         method: 'GET',
         headers: {
         'Content-Type': 'application/json',

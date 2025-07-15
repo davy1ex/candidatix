@@ -12,6 +12,9 @@ interface SettingsState {
   setOllamaUrl: (url: string) => void;
   ollamaModel: string;
   setOllamaModel: (model: string) => void;
+
+  systemPrompt: string;
+  setSystemPrompt: (prompt: string) => void;
   
   isOpen: boolean;
   toggleSettings: () => void;
@@ -32,6 +35,11 @@ export const useSettings = create<SettingsState>()(
       ollamaModel: 'llama2',
       setOllamaUrl: (url) => set({ ollamaUrl: url }),
       setOllamaModel: (model) => set({ ollamaModel: model }),
+
+      systemPrompt: "Ты — AI, помогающий составлять отклики на вакансии. Используй резюме кандидата, чтобы составить персонализированный текст. Не придумывай информацию, которой нет в резюме.", // TOOD: in feature here will be translated text
+      setSystemPrompt: (prompt) => {
+        set({systemPrompt: prompt})
+      },
       
       isOpen: false,
       toggleSettings: () => set((state) => ({ isOpen: !state.isOpen })),

@@ -1,11 +1,12 @@
-export async function POST(req: Request) {
+export async function POST(request: Request) {  
   try {
-    const body = await req.json();
+    const { searchParams } = new URL(request.url);
+    const ollamaUrl = searchParams.get("ollamaUrl");
+
+    const body = await request.json();
     const { model, messages, stream = false } = body;
 
-    const ollamaHost = process.env.OLLAMA_HOST || 'http://172.22.208.1:11434';
-
-    const response = await fetch(`${ollamaHost}/api/chat`, {
+    const response = await fetch(`${ollamaUrl}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

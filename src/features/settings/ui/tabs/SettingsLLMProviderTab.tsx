@@ -11,36 +11,26 @@ export const SettingsLLMProviderTab = () => {
     const {
         ollamaUrl,
         ollamaModel,
+
+        systemPrompt,
+        setSystemPrompt,
+
         isOpen
     } = useSettings();
 
     const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
     const [LLMProvider, setLLMProvider] = useState("ollama")
     const [isTesting, setIsTesting] = useState(false);
-    const [systemPrompt, setSystemPrompt] = useState('')
-
-    useEffect(() => {
-        if (isOpen && LLMProvider == 'ollama') {
-            testOllamaConnection({model: ollamaModel, setIsTesting, setConnectionStatus});
-        }
-
-        if (LLMProvider != 'ollama') {
-            setIsTesting(false); // TODO: add cancel testing ollama feature here
-        }
-    }, [isOpen, ollamaUrl, LLMProvider]); // TODO: add check connection also for remote LLM (gemini)
 
     const handleTestConnection = () => {
         if (LLMProvider === 'ollama') {
             testOllamaConnection({
                 model: ollamaModel,
+                ollamaUrl,
                 setIsTesting,
                 setConnectionStatus,
             });
         }
-    }
-
-    const saveSettings = () => {
-
     }
 
     return (
@@ -85,13 +75,6 @@ export const SettingsLLMProviderTab = () => {
                     disabled={isTesting}
                 >
                     {isTesting ? 'Testing...' : 'Test Connection'}
-                </Button>
-
-                <Button
-                    variant="outline"
-                    onClick={saveSetting}
-                    disabled={isTesting}
-                >Save
                 </Button>
             </div>
             {connectionStatus && (
