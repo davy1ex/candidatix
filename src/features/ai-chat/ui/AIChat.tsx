@@ -15,7 +15,15 @@ import { Input } from '@/shared/ui/input';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/shared/ui/select';
 
 export const AIChat = () => {
-  const { isOpen: isSettingsOpen, ollamaUrl, ollamaModel } = useSettings();
+  const { 
+    isOpen: isSettingsOpen, 
+    systemPrompt, 
+    exampleShot, 
+    setExampleShot,
+    ollamaUrl, 
+    ollamaModel 
+  } = useSettings();
+
   const { resumes } = useResume();
   const resume = resumes[0] // TODO: refactor here to select resume from client
   const { addResponse } = useResponseStore();
@@ -31,6 +39,7 @@ export const AIChat = () => {
   const [error, setError] = useState<string | null>(null);  
 
   const [LLMProvider, setLLMProvider] = useState<'ollama' | 'gemini'>('ollama')
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
 
   const handleGenerate = async () => {
     console.log(LLMProvider)
@@ -40,12 +49,23 @@ export const AIChat = () => {
     setError(null);
     setIsLoading(true);
     setStatus('thinking');
+
+    const controller = new AbortController();
+    setAbortController(controller);
   
     try { // TODO: add here checking existing credits of ai provider and if it not exist - send toast about error
-      await generateAIResponse(prompt, resume, (chunk) => {
-        setStatus('streaming');
-        setResponse(prev => prev + chunk);
-      }, LLMProvider);
+      await generateAIResponse(
+        prompt, 
+        systemPrompt, 
+        exampleShot,
+        resume, 
+        (chunk) => {
+          setStatus('streaming');
+          setResponse(prev => prev + chunk);
+        }, 
+        LLMProvider,
+        controller.signal
+      );
   
       setStatus('done');
     } catch (err: any) {
@@ -53,6 +73,7 @@ export const AIChat = () => {
       setStatus('done');
     } finally {
       setIsLoading(false);
+      setAbortController(null);
     }
   };
 
@@ -67,25 +88,31 @@ export const AIChat = () => {
           <div className="w-1/2 p-4 flex flex-col gap-4">
               <div className="flex-1">
                   <div className="flex-column h-[100%]">
-                  <Select value={LLMProvider} onValueChange={setLLMProvider}>
-                <SelectTrigger>
-                    <SelectValue placeholder="Select a LLM" />
-                  <SelectContent>
-                    <SelectItem value={"ollama"}>
-                      Ollama
-                    </SelectItem>
+                    <Select value={LLMProvider} onValueChange={setLLMProvider}>
+                      <SelectTrigger>
+                          <SelectValue placeholder="Select a LLM" />
+                        <SelectContent>
+                          <SelectItem value={"ollama"}>
+                            Ollama
+                          </SelectItem>
+                          <SelectItem value={"gemini"}>
+                            Gemini
+                          </SelectItem>
+                        </SelectContent>
+                      </SelectTrigger>
+                    </Select>
+                    
+                    <Label htmlFor="prompt">Your Question</Label>
+                    <AutoResizeTextarea 
+                        value={prompt} 
+                        onChange={(e) => setPrompt(e.target.value)}
+                    />
 
-                    <SelectItem value={"gemini"}>
-                      Gemini
-                    </SelectItem>
-                  </SelectContent>
-                </SelectTrigger>
-              </Select>
-                      <Label htmlFor="prompt">Your Question</Label>
-                      <AutoResizeTextarea 
-                          value={prompt} 
-                          onChange={(e) => setPrompt(e.target.value)}
-                      />
+                    <Label htmlFor="prompt">Example shot</Label>
+                    <AutoResizeTextarea 
+                        value={exampleShot} 
+                        onChange={(e) => setExampleShot(e.target.value)}
+                    />
                   </div>
 
                   {error && (
@@ -102,6 +129,20 @@ export const AIChat = () => {
                   >
                       {isLoading ? 'Generating...' : 'Generate'}
                   </Button>
+
+                  {
+                    isLoading && 
+                    
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          abortController?.abort();
+                        }}
+                        disabled={!abortController}
+                      >
+                        Stop
+                      </Button>
+                  }
               </div>
           </div>
 

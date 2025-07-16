@@ -15,6 +15,9 @@ interface SettingsState {
 
   systemPrompt: string;
   setSystemPrompt: (prompt: string) => void;
+
+  exampleShot: string;
+  setExampleShot: (newShot: string) => void;
   
   isOpen: boolean;
   toggleSettings: () => void;
@@ -40,6 +43,10 @@ export const useSettings = create<SettingsState>()(
       setSystemPrompt: (prompt) => {
         set({systemPrompt: prompt})
       },
+
+      exampleShot: "",
+      setExampleShot: (newExampleShot) => 
+        set({exampleShot: newExampleShot}),
       
       isOpen: false,
       toggleSettings: () => set((state) => ({ isOpen: !state.isOpen })),

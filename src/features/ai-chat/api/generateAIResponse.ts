@@ -1,18 +1,20 @@
 import { useSettings } from '@/features/settings';
-import { useResume } from '@/entities/resume/model/resumeStore';
 import {Resume} from "@/entities/resume";
 
 type OnChunkCallback = (chunk: string) => void;
 
 export const generateAIResponse = async (
     prompt: string,
+    systemPrompt: string,
+    exampleShot?: string,
     resume: Resume,
     onChunk: OnChunkCallback,
-    provider: 'ollama' | 'gemini'
+    provider: 'ollama' | 'gemini',
+    signal: AbortSignal 
 ) => {
   console.log(provider)
   if (provider === 'ollama') {
-    return generateAIResponseOllama(prompt, resume, onChunk);
+    return generateAIResponseOllama(prompt, systemPrompt, exampleShot, resume, onChunk, signal);
   }
   if (provider === 'gemini') {
     return generateAIResponseGemini(prompt, resume, onChunk);
@@ -20,7 +22,14 @@ export const generateAIResponse = async (
   throw new Error('Unknown LLM provider');
 };
 
-export const generateAIResponseOllama = async (prompt: string, resume: string, onChunk: OnChunkCallback) => {
+export const generateAIResponseOllama = async (
+  prompt: string, 
+  systemPrompt: string, 
+  exampleShot: string, 
+  resume: Resume, 
+  onChunk: OnChunkCallback,
+  signal: AbortSignal
+) => {
   const { ollamaUrl, ollamaModel } = useSettings.getState();
 
   if (!ollamaUrl || !ollamaModel || !resume) {
@@ -36,7 +45,7 @@ export const generateAIResponseOllama = async (prompt: string, resume: string, o
         {
           role: "system",
           content:
-              "",
+            `${systemPrompt}. Используй как пример текста для вайба это: ${exampleShot}`
         },
         {
           role: "assistant",
@@ -49,6 +58,7 @@ export const generateAIResponseOllama = async (prompt: string, resume: string, o
       ],
       stream: true,
     }),
+    signal
   });
 
   if (!response.ok || !response.body) {
@@ -92,7 +102,7 @@ export const generateAIResponseOllama = async (prompt: string, resume: string, o
   }
 };
 
-export const generateAIResponseGemini = async (prompt: string, resume: string, onChunk: OnChunkCallback) => {
+export const generateAIResponseGemini = async (prompt: string, resume: Resume, onChunk: OnChunkCallback) => {
   const { geminiKey, geminiUrl } = useSettings.getState();
 
   if (!geminiKey || !geminiUrl || !resume) {
